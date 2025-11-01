@@ -90,28 +90,32 @@ public class PdfService {
 
             // Add rough drawing
             document.add(new Paragraph(" "));
-            document.add(new Paragraph("Rough Measurements Diagram", HEADER_FONT));
+            document.add(new Paragraph("Measurements Diagram", HEADER_FONT));
             document.add(new Paragraph(" "));
 
-            // Create a simple rectangular diagram
+            // Create a simple rectangular diagram with border
             PdfPTable diagramTable = new PdfPTable(1);
             diagramTable.setWidthPercentage(70);
             diagramTable.setHorizontalAlignment(Element.ALIGN_CENTER);
 
             PdfPCell diagramCell = new PdfPCell();
-            diagramCell.setFixedHeight(200);
+            diagramCell.setFixedHeight(150);
             diagramCell.setPadding(20);
+            diagramCell.setBorderWidth(2);
+            diagramCell.setBorderColor(BaseColor.BLACK);
             
             Paragraph diagramContent = new Paragraph();
+            diagramContent.setAlignment(Element.ALIGN_CENTER);
             diagramContent.add(new Chunk("Width: " + estimate.getWidth() + " ft\n\n", NORMAL_FONT));
-            diagramContent.add(new Chunk("┌" + "─".repeat(30) + "┐\n", NORMAL_FONT));
-            diagramContent.add(new Chunk("│" + " ".repeat(30) + "│\n", NORMAL_FONT));
-            diagramContent.add(new Chunk("│  Height: " + estimate.getHeight() + " ft" + " ".repeat(11) + "│\n", NORMAL_FONT));
-            diagramContent.add(new Chunk("│" + " ".repeat(30) + "│\n", NORMAL_FONT));
-            diagramContent.add(new Chunk("└" + "─".repeat(30) + "┘\n", NORMAL_FONT));
+            diagramContent.add(new Chunk("Height: " + estimate.getHeight() + " ft\n\n", NORMAL_FONT));
+            diagramContent.add(new Chunk("Area: " + estimate.getAreaInSquareFeet() + " sq ft\n", NORMAL_FONT));
             
             if (estimate.getNumberOfLeafs() != null && estimate.getNumberOfLeafs() > 1) {
                 diagramContent.add(new Chunk("\nLeafs: " + estimate.getNumberOfLeafs(), NORMAL_FONT));
+            }
+            
+            if (estimate.getGlassThickness() != null) {
+                diagramContent.add(new Chunk("\nGlass Thickness: " + estimate.getGlassThickness() + " mm", NORMAL_FONT));
             }
             
             diagramCell.addElement(diagramContent);

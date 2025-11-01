@@ -2,6 +2,7 @@ package com.alkra.estimates.service;
 
 import com.alkra.estimates.dto.EstimateRequest;
 import com.alkra.estimates.dto.EstimateResponse;
+import com.alkra.estimates.exception.ResourceNotFoundException;
 import com.alkra.estimates.model.Estimate;
 import com.alkra.estimates.model.ProductConfiguration;
 import com.alkra.estimates.repository.EstimateRepository;
@@ -27,7 +28,7 @@ public class EstimateService {
         // Get product configuration
         ProductConfiguration config = productConfigurationRepository
                 .findByProductTypeAndActiveTrue(request.getProductType())
-                .orElseThrow(() -> new RuntimeException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "Product configuration not found for: " + request.getProductType()));
 
         // Calculate area in square feet
@@ -59,7 +60,7 @@ public class EstimateService {
 
     public EstimateResponse getEstimate(Long id) {
         Estimate estimate = estimateRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Estimate not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Estimate not found with id: " + id));
         return mapToResponse(estimate);
     }
 
