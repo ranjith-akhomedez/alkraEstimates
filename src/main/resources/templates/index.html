@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alkra Estimates - Online Estimation Software</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            padding: 40px;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .result {
+            margin-top: 30px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+        }
+
+        .result h2 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-item.total {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #667eea;
+            margin-top: 10px;
+        }
+
+        .download-btn {
+            background: #28a745;
+            margin-top: 15px;
+        }
+
+        .download-btn:hover {
+            background: #218838;
+        }
+
+        .error {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏗️ ALKRA ESTIMATES</h1>
+        <p class="subtitle">Online Estimation Software for UPVC Windows, Doors, Modular Kitchens & More</p>
+
+        <form id="estimateForm">
+            <div class="form-group">
+                <label for="productType">Product Type *</label>
+                <select id="productType" name="productType" required>
+                    <option value="">Select Product Type</option>
+                    <option th:each="type : ${productTypes}" 
+                            th:value="${type}" 
+                            th:text="${type.displayName}">Product Type</option>
+                </select>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="height">Height (feet) *</label>
+                    <input type="number" id="height" name="height" step="0.1" min="0.1" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="width">Width (feet) *</label>
+                    <input type="number" id="width" name="width" step="0.1" min="0.1" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="numberOfLeafs">Number of Leafs</label>
+                    <input type="number" id="numberOfLeafs" name="numberOfLeafs" min="1">
+                </div>
+
+                <div class="form-group">
+                    <label for="glassThickness">Glass Thickness (mm)</label>
+                    <input type="number" id="glassThickness" name="glassThickness" min="1">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="customerName">Customer Name</label>
+                <input type="text" id="customerName" name="customerName">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="customerEmail">Customer Email</label>
+                    <input type="email" id="customerEmail" name="customerEmail">
+                </div>
+
+                <div class="form-group">
+                    <label for="customerPhone">Customer Phone</label>
+                    <input type="text" id="customerPhone" name="customerPhone" pattern="[0-9]{10,15}">
+                </div>
+            </div>
+
+            <button type="submit">Calculate Estimate</button>
+        </form>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Calculating estimate...</p>
+        </div>
+
+        <div class="result" id="result">
+            <h2>Estimate Details</h2>
+            <div class="result-item">
+                <span>Product Type:</span>
+                <span id="resultProductType"></span>
+            </div>
+            <div class="result-item">
+                <span>Dimensions:</span>
+                <span id="resultDimensions"></span>
+            </div>
+            <div class="result-item">
+                <span>Area:</span>
+                <span id="resultArea"></span>
+            </div>
+            <div class="result-item">
+                <span>Rate per sq ft:</span>
+                <span id="resultRate"></span>
+            </div>
+            <div class="result-item total">
+                <span>Total Cost:</span>
+                <span id="resultTotal"></span>
+            </div>
+            <button class="download-btn" id="downloadBtn">📥 Download PDF</button>
+        </div>
+    </div>
+
+    <script>
+        let currentEstimateId = null;
+
+        document.getElementById('estimateForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = {
+                productType: document.getElementById('productType').value,
+                height: parseFloat(document.getElementById('height').value),
+                width: parseFloat(document.getElementById('width').value),
+                numberOfLeafs: document.getElementById('numberOfLeafs').value ? 
+                    parseInt(document.getElementById('numberOfLeafs').value) : null,
+                glassThickness: document.getElementById('glassThickness').value ? 
+                    parseInt(document.getElementById('glassThickness').value) : null,
+                customerName: document.getElementById('customerName').value || null,
+                customerEmail: document.getElementById('customerEmail').value || null,
+                customerPhone: document.getElementById('customerPhone').value || null
+            };
+
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('result').classList.remove('show');
+
+            try {
+                const response = await fetch('/api/estimates', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to create estimate');
+                }
+
+                const data = await response.json();
+                currentEstimateId = data.id;
+
+                // Display results
+                document.getElementById('resultProductType').textContent = data.productTypeName;
+                document.getElementById('resultDimensions').textContent = 
+                    `${data.height} ft × ${data.width} ft`;
+                document.getElementById('resultArea').textContent = 
+                    `${data.areaInSquareFeet} sq ft`;
+                document.getElementById('resultRate').textContent = `₹ ${data.ratePerSquareFeet}`;
+                document.getElementById('resultTotal').textContent = `₹ ${data.totalCost}`;
+
+                document.getElementById('result').classList.add('show');
+            } catch (error) {
+                alert('Error creating estimate: ' + error.message);
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        });
+
+        document.getElementById('downloadBtn').addEventListener('click', async () => {
+            if (currentEstimateId) {
+                window.open(`/api/estimates/${currentEstimateId}/pdf`, '_blank');
+            }
+        });
+    </script>
+</body>
+</html>
